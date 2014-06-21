@@ -1,0 +1,36 @@
+{
+    "name": "zen/core",
+    "description": "Kernel of Zen framework.",
+    "version": "1.0.0-dev",
+    "keywords": [
+        "framework",
+        "zen"
+    ],
+    "license": "LGPL-3.0+",
+    "authors": [
+        {
+            "name": "Snakevil Zen",
+            "email": "zsnakevil@gmail.com",
+            "role": "Director"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Zen\\Core\\": "lib/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZenTest\\Core\\": "share/test/"
+        }
+    },
+    "minimum-stability": "dev",
+    "archive": {
+        "exclude": [
+            "/share"
+        ]
+    }
+}
