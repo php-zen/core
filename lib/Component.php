@@ -18,4 +18,102 @@ namespace Zen\Core;
  */
 abstract class Component
 {
+    /**
+     * 非公共属性的读写性记录表。
+     *
+     * @internal
+     *
+     * @var array[]
+     */
+    protected static $zenPropsTable;
+
+    /**
+     * 重载 PHP 原生 `__get()` 魔法方法。
+     *
+     * @param  string $property 属性名
+     * @return mixed
+     */
+    final public function __get($property)
+    {
+        if (2 & $this->zenMeasureProperty($property)) {
+            $s_xetter = 'zenGet' . $property;
+
+            return $this->$s_xetter();
+        }
+        if (1 & $this->zenMeasureProperty($property)) {
+            return $this->onGetProperty($property);
+        }
+    }
+
+    /**
+     * 读取非公开属性的事件。
+     *
+     * @param  string $property
+     * @return mixed
+     */
+    protected function onGetProperty($property)
+    {
+    }
+
+    /**
+     * 重载 PHP 原生 `__set()` 魔法方法。
+     *
+     * @param  string $property 属性名
+     * @param  mixed  $value    新值
+     * @return void
+     */
+    final public function __set($property, $value)
+    {
+        if (4 & $this->zenMeasureProperty($property)) {
+            $s_xetter = 'zenSet' . $property;
+
+            return $this->s_xetter($value);
+        }
+        if (1 & $this->zenMeasureProperty($property)) {
+            return $this->onSetProperty($property, $value);
+        }
+    }
+
+    /**
+     * 设置非公开属性的事件。
+     *
+     * @param  string $property 属性名
+     * @param  mixed  $value    新值
+     * @return void
+     */
+    protected function onSetProperty($property, $value)
+    {
+    }
+
+    /**
+     * 度量非公共属性的可读写性。
+     *
+     * @internal
+     *
+     * @param  string $name 属性名
+     * @return int
+     */
+    final protected function zenMeasureProperty($name)
+    {
+        if (!is_array(self::$zenPropsTable)) {
+            self::$zenPropsTable = array();
+        }
+        $s_class = get_class($this);
+        if (!isset(self::$zenPropsTable[$s_class][$name])) {
+            self::$zenPropsTable[$s_class][$name] = 0;
+            if (property_exists($s_class, $name)) {
+                self::$zenPropsTable[$s_class][$name] = 1;
+                $s_xetter = 'zenGet' . $name;
+                if (method_exists($s_class, $s_xetter)) {
+                    self::$zenPropsTable[$s_class][$name] += 2;
+                }
+                $s_xetter = 'zenSet' . $name;
+                if (method_exists($s_class, $s_xetter)) {
+                    self::$zenPropsTable[$s_class][$name] += 4;
+                }
+            }
+        }
+
+        return self::$zenPropsTable[$s_class][$name];
+    }
 }
