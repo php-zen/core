@@ -1,7 +1,7 @@
 {
     "name": "zen/core",
     "description": "Kernel of Zen framework.",
-    "version": "1.0.0-dev",
+    "version": "0.1.0-dev",
     "keywords": [
         "framework",
         "zen"
@@ -11,7 +11,7 @@
         {
             "name": "Snakevil Zen",
             "email": "zsnakevil@gmail.com",
-            "role": "Director"
+            "role": "Leader"
         }
     ],
     "require": {
@@ -27,7 +27,6 @@
             "ZenTest\\Core\\": "share/test/"
         }
     },
-    "minimum-stability": "dev",
     "archive": {
         "exclude": [
             "/share"
