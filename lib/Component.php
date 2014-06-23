@@ -48,7 +48,7 @@ abstract class Component
     /**
      * 读取非公开属性的事件。
      *
-     * @param  string $property
+     * @param  string $property 属性名
      * @return mixed
      */
     protected function onGetProperty($property)
@@ -100,17 +100,19 @@ abstract class Component
         }
         $s_class = get_class($this);
         if (!isset(self::$zenPropsTable[$s_class][$name])) {
-            self::$zenPropsTable[$s_class][$name] = 0;
-            if (property_exists($s_class, $name)) {
-                self::$zenPropsTable[$s_class][$name] = 1;
-                $s_xetter = 'zenGet' . $name;
-                if (method_exists($s_class, $s_xetter)) {
-                    self::$zenPropsTable[$s_class][$name] += 2;
+            self::$zenPropsTable[$s_class] = array();
+            foreach (array_keys(get_class_vars($s_class)) as $ii) {
+                if ('zen' != substr($ii, 0, 3)) {
+                    self::$zenPropsTable[$s_class][$ii] = 1;
                 }
-                $s_xetter = 'zenSet' . $name;
-                if (method_exists($s_class, $s_xetter)) {
-                    self::$zenPropsTable[$s_class][$name] += 4;
-                }
+            }
+            $s_xetter = 'zenGet' . $name;
+            if (method_exists($s_class, $s_xetter)) {
+                self::$zenPropsTable[$s_class][$name] += 2;
+            }
+            $s_xetter = 'zenSet' . $name;
+            if (method_exists($s_class, $s_xetter)) {
+                self::$zenPropsTable[$s_class][$name] += 4;
             }
         }
 

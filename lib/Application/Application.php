@@ -101,6 +101,8 @@ abstract class Application extends Core\Component implements IApplication
      * @param  IConfiguration|array|string $configs 可选。配置表
      * @param  IRouter|array|string        $routes  可选。路由表
      * @return void
+     *
+     * @throws ExApplianceAlreadyRunning 当多应用程序同时运行时
      */
     final public static function run($configs = null, $routes = null)
     {

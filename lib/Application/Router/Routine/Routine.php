@@ -45,11 +45,15 @@ abstract class Routine extends Core\Component implements Core\Application\IRoute
 
     /**
      * 路由规则待处理逻辑的匹配模式。
+     *
+     * @var string
      */
     const PATTERN = '';
 
     /**
      * 路由规则待处理逻辑对应的规则组件类名。
+     *
+     * @var string
      */
     const RULE_CLASS = '';
 

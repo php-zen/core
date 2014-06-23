@@ -101,6 +101,8 @@ final class Token extends Core\Component implements Core\Application\IRouterToke
      *
      * @param  Core\Application\IApplication $app 应用程序实例
      * @return void
+     *
+     * @throws ExIllegalGoalType 当目标控制器类未实现标准接口时
      */
     public function dispatch(Core\Application\IApplication $app)
     {
