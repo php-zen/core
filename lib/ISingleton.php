@@ -13,8 +13,8 @@ namespace Zen\Core;
  * 遵循单例模式地组件规范。
  *
  * @package Zen\Core
- * @version    0.1.0
- * @since      0.1.0
+ * @version 0.1.0
+ * @since   0.1.0
  */
 interface ISingleton
 {

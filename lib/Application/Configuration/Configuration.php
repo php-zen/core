@@ -42,23 +42,18 @@ final class Configuration extends Core\Component implements Core\Application\ICo
      */
     public function offsetExists($offset)
     {
-        $s_key1 = is_string($offset)
+        $s_key = is_string($offset)
             ? trim($offset, ". \t\n\r\0\x0B")
             : (string) $offset;
-        $i_pos = strpos($s_key1, '.');
-        if (false !== $i_pos) {
-            $s_key2 = substr($s_key1, 1 + $i_pos);
-            $s_key1 = substr($s_key1, 0, $i_pos);
-        } else {
-            $s_key2 = '';
+        $a_nodes = explode('.', $s_key);
+        if (1 == count($a_nodes)) {
+            return array_key_exists($s_key, $this->tree);
         }
-        if (!array_key_exists($s_key1, $this->tree) ||
-            '' != $s_key2 && is_array($this->tree[$s_key1])
-        ) {
-            return false;
-        }
+        $s_key = array_pop($a_nodes);
+        $s_var = '$this->tree[\'' . implode('\'][\'', $a_nodes) . '\']';
+        eval('$b_ret = isset(' . $s_var . ') && array_key_exists(\'' . $s_key . '\', ' . $s_var . ');');
 
-        return isset($this->tree[$s_key1][$s_key2]);
+        return $b_ret;
     }
 
     /**
@@ -71,26 +66,13 @@ final class Configuration extends Core\Component implements Core\Application\ICo
      */
     public function offsetGet($offset)
     {
-        $s_key1 = is_string($offset)
+        $s_key = is_string($offset)
             ? trim($offset, ". \t\n\r\0\x0B")
             : (string) $offset;
-        $i_pos = strpos($s_key1, '.');
-        if (false !== $i_pos) {
-            $s_key2 = substr($s_key1, 1 + $i_pos);
-            $s_key1 = substr($s_key1, 0, $i_pos);
-        } else {
-            $s_key2 = '';
-        }
-        if (!array_key_exists($s_key1, $this->tree)) {
-            return;
-        }
-        if (is_array($this->tree[$s_key1])) {
-            return '' == $s_key2
-                ? $this->tree[$s_key1]
-                : null;
-        }
+        $s_var = '$this->tree[\'' . str_replace('.', '\'][\'', $s_key) . '\']';
+        eval('$m_ret = @' . $s_var . ';');
 
-        return $this->tree[$s_key1][$s_key2];
+        return $m_ret;
     }
 
     /**
@@ -145,30 +127,24 @@ final class Configuration extends Core\Component implements Core\Application\ICo
      */
     protected function arrange($raw)
     {
-        $a_stage = array();
+        $a_ret = array();
         foreach ($raw as $kk => $vv) {
             $kk = is_string($kk)
                 ? trim($kk, ". \t\n\r\0\x0B")
                 : (string) $kk;
             $a_nodes = explode('.', $kk);
-            $a_ref =& $a_stage;
-            for ($ii = 0, $jj = count($a_nodes); $ii < $jj; $ii++) {
+            $a_ref =& $a_ret;
+            for ($ii = 0, $jj = count($a_nodes) - 1; $ii < $jj; $ii++) {
                 if (!isset($a_ref[$a_nodes[$ii]])) {
                     $a_ref[$a_nodes[$ii]] = array();
                 }
                 $a_ref =& $a_ref[$a_nodes[$ii]];
             }
-            if (!is_array($vv)) {
-                $a_ref[''] = $vv;
+            if (!is_array($vv) || !isset($a_ref[$a_nodes[$ii]])) {
+                $a_ref[$a_nodes[$ii]] = $vv;
             } else {
-                $a_ref = array_merge_recursive($a_ref, $vv);
+                $a_ref[$a_nodes[$ii]] = array_merge_recursive($a_ref[$a_nodes[$ii]], $vv);
             }
-        }
-        $a_ret = array();
-        foreach ($a_stage as $kk => $vv) {
-            $a_ret[$kk] = 1 < count($vv)
-                ? new static($vv)
-                : $vv;
         }
 
         return $a_ret;
