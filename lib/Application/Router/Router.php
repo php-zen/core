@@ -109,7 +109,7 @@ class Router extends Core\Component implements Core\Application\IRouter
      * @param  Core\Application\IInput       $input
      * @return Core\Application\IRouterToken
      *
-     * @throws ExUnknownRouteSolution
+     * @throws ExUnknownRouteSolution 当无法匹配合适的路由规则时
      */
     final public function route(Core\Application\IInput $input)
     {
