@@ -95,6 +95,7 @@ abstract class Exception extends PHPException
         if (!preg_match_all('@%([^\$]+)\$@', static::$template, $a_matches, PREG_SET_ORDER)) {
             return static::$template;
         }
+        $a_context = $this->format();
         $i_counter = 0;
         $a_src = $a_dst = $a_val = array();
         foreach ($a_matches as $ii) {
@@ -103,11 +104,21 @@ abstract class Exception extends PHPException
             }
             $a_src[$ii[0]] = 1;
             $a_dst[] = '%' . (++$i_counter) . '$';
-            $a_val[] = isset($this->context[$ii[1]]) ? $this->context[$ii[1]] : '';
+            $a_val[] = isset($a_context[$ii[1]]) ? $a_context[$ii[1]] : '';
         }
         $a_src = array_keys($a_src);
 
         return vsprintf(str_replace($a_src, $a_dst, static::$template), $a_val);
+    }
+
+    /**
+     * 格式化环境信息。
+     *
+     * @return mixed[]
+     */
+    protected function format()
+    {
+        return $this->context;
     }
 
     /**
