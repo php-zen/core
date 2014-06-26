@@ -94,7 +94,7 @@ class Router extends Core\Component implements Core\Application\IRouter
         $a_ret = array();
         foreach ($routes as $kk => $vv) {
             if (is_array($vv)) {
-                $a_ret = array_merge($this->prefix($vv, $prefix . $kk), $a_ret);
+                $a_ret = array_merge($a_ret, $this->prefix($vv, $prefix . $kk));
             } else {
                 $a_ret[$prefix . $kk] = $vv;
             }
