@@ -14,6 +14,21 @@ use Zen\Core;
 /**
  * 应用程序的输入信息组件。
  *
+ * ### 如何获取信息的值？
+ *
+ * 基于 `ArrayAccess` 接口规范，我们将信息键名以 `<Namespace>:<Name>` 地形式拆分成两个
+ * 部分，以尽可能地减低重名键名带来地负面影响。
+ *
+ * 因此，如果希望在命令行模式下获取参数数量 `$_SERVER['argc']` ，可以通过
+ * `$input['server:argc']` 实现。
+ *
+ * ### 那些超级变量被记录了？
+ *
+ * 本类记录了以下超级变量的信息：
+ *
+ * 1. `$_SERVER`
+ * 2. `$_ENV`
+ *
  * @package    Zen\Core
  * @subpackage Application
  * @version    0.1.0
@@ -113,6 +128,8 @@ abstract class Input extends Core\Component implements Core\Application\IInput
     public function __construct()
     {
         $this->params = array();
+        $this->params['server'] = $_SERVER;
+        $this->params['env'] = $_ENV;
     }
 
     /**
