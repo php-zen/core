@@ -190,14 +190,12 @@ abstract class Input extends Core\Component implements Core\Application\IInput
     {
         try {
             $m_ret = $this->offsetGet($key);
+            if (!preg_match($pattern, $m_ret)) {
+                throw new ExPatternDismatch($key, $pattern);
+            }
         } catch (Exception $ee) {
             if (is_null($defaults)) {
                 throw $ee;
-            }
-        }
-        if (!preg_match($pattern, $m_ret)) {
-            if (is_null($defaults)) {
-                throw new ExPatternDismatch($key, $pattern);
             }
             $m_ret = $defaults;
         }
