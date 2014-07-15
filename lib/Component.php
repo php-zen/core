@@ -105,14 +105,14 @@ abstract class Component
                 if ('zen' != substr($ii, 0, 3)) {
                     self::$zenPropsTable[$s_class][$ii] = 1;
                 }
-            }
-            $s_xetter = 'zenGet' . $name;
-            if (method_exists($s_class, $s_xetter)) {
-                self::$zenPropsTable[$s_class][$name] += 2;
-            }
-            $s_xetter = 'zenSet' . $name;
-            if (method_exists($s_class, $s_xetter)) {
-                self::$zenPropsTable[$s_class][$name] += 4;
+                $s_xetter = 'zenGet' . $ii;
+                if (method_exists($s_class, $s_xetter)) {
+                    self::$zenPropsTable[$s_class][$ii] += 2;
+                }
+                $s_xetter = 'zenSet' . $ii;
+                if (method_exists($s_class, $s_xetter)) {
+                    self::$zenPropsTable[$s_class][$ii] += 4;
+                }
             }
         }
 
