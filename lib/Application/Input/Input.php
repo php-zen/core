@@ -93,6 +93,10 @@ abstract class Input extends Core\Component implements Core\Application\IInput
         if (!array_key_exists($s_key1, $this->params) || !array_key_exists($s_key2, $this->params[$s_key1])) {
             throw new ExNonExistantKey($s_key1 . ':' . $s_key2);
         }
+        $s_caster = 'onGet' . $s_key1;
+        if (method_exists($this, $s_caster)) {
+            return $this->$s_caster($this->params[$s_key1][$s_key2]);
+        }
 
         return $this->params[$s_key1][$s_key2];
     }
