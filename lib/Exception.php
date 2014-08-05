@@ -80,7 +80,7 @@ abstract class Exception extends PHPException
             array_splice($a_args, $i_keys);
         }
         $this->context = array_combine($a_keys, $a_args);
-        parent::__construct($this->semanticize(), static::CODE, $e_prev);
+        parent::__construct($this->semanticize(), 1, $e_prev);
     }
 
     /**
