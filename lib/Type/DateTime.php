@@ -21,7 +21,7 @@ class DateTime extends PHPDateTime
     /**
      * 构造函数
      *
-     * @param string       $time 可选。时间描述
+     * @param string|int   $time 可选。时间描述
      * @param DateTimeZone $zone 可选。时区
      */
     public function __construct($time = 'now', DateTimeZone $zone = null)
@@ -29,7 +29,12 @@ class DateTime extends PHPDateTime
         if ('epoch' == $time || '0' == $time) {
             $time = '1970-01-01 00:00:00';
         }
-        parent::__construct($time, $zone);
+        if (is_numeric($time) && 2038 < $time) {
+            parent::__construct('now', $zone);
+            $this->setTimestamp($time);
+        } else {
+            parent::__construct($time, $zone);
+        }
     }
 
     /**
