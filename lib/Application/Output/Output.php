@@ -71,11 +71,24 @@ abstract class Output extends Core\Component implements Core\Application\IOutput
     {
         if (!$this->closed) {
             $this->closed = true;
-            print($this->buffer . ob_get_clean());
+            $this->buffer .= ob_get_clean();
+            ob_start();
+            $this->onClose();
+            ob_end_clean();
+            print($this->buffer);
             $this->buffer = '';
             ob_start();
         }
 
         return $this;
+    }
+
+    /**
+     * 输出关闭事件。
+     *
+     * @return void
+     */
+    protected function onClose()
+    {
     }
 }
