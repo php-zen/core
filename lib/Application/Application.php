@@ -37,11 +37,9 @@ abstract class Application extends Core\Component implements IApplication
     /**
      * 获取配置组件。
      *
-     * @internal
-     *
      * @return IConfiguration
      */
-    protected function zenGetConfig()
+    final public function getConfig()
     {
         return $this->config;
     }
@@ -58,11 +56,9 @@ abstract class Application extends Core\Component implements IApplication
     /**
      * 获取输入信息组件实例。
      *
-     * @internal
-     *
      * @return IInput
      */
-    protected function zenGetInput()
+    final public function getInput()
     {
         return $this->input;
     }
@@ -79,11 +75,9 @@ abstract class Application extends Core\Component implements IApplication
     /**
      * 获取输出流组件实例。
      *
-     * @internal
-     *
      * @return IOutput
      */
-    protected function zenGetOutput()
+    final public function getOutput()
     {
         return $this->output;
     }
@@ -225,35 +219,5 @@ abstract class Application extends Core\Component implements IApplication
     protected function newDefaultRouter($routes)
     {
         return new Router\Router($routes);
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @return Configuration\Configuration
-     */
-    final public function getConfig()
-    {
-        return $this->zenGetConfig();
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @return Input\Input
-     */
-    final public function getInput()
-    {
-        return $this->zenGetInput();
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @return Output\Output
-     */
-    final public function getOutput()
-    {
-        return $this->zenGetOutput();
     }
 }
