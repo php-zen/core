@@ -1,7 +1,7 @@
 {
     "name": "zen/core",
-    "description": "Kernel of Zen framework.",
-    "version": "0.1.0-dev",
+    "description": "Zen 框架核心包，提供应用程序的基本结构。",
+    "type": "library",
     "keywords": [
         "framework",
         "zen"
