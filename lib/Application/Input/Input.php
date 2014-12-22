@@ -63,9 +63,32 @@ abstract class Input extends Core\Component implements Core\Application\IInput
             return false;
         }
         $s_key2 = substr($s_key1, 1 + $i_pos);
-        $s_key1 = substr($s_key1, 0, $i_pos);
+        $s_key1 = $this->guessAbbr(substr($s_key1, 0, $i_pos));
 
         return array_key_exists($s_key1, $this->params) && array_key_exists($s_key2, $this->params[$s_key1]);
+    }
+
+    /**
+     * 猜解缩写地命名空间。
+     *
+     * @param  string $abbr 命名空间缩写
+     * @return string
+     */
+    protected function guessAbbr($abbr)
+    {
+        switch ($abbr) {
+            case 's':
+            case 'se':
+            case 'ser':
+            case 'serv':
+            case 'serve':
+                return 'server';
+            case 'e':
+            case 'en':
+                return 'env';
+        }
+
+        return $abbr;
     }
 
     /**
@@ -89,7 +112,7 @@ abstract class Input extends Core\Component implements Core\Application\IInput
             throw new ExInvalidKey($s_key1);
         }
         $s_key2 = substr($s_key1, 1 + $i_pos);
-        $s_key1 = substr($s_key1, 0, $i_pos);
+        $s_key1 = $this->guessAbbr(substr($s_key1, 0, $i_pos));
         if (!array_key_exists($s_key1, $this->params) || !array_key_exists($s_key2, $this->params[$s_key1])) {
             throw new ExNonExistantKey($s_key1 . ':' . $s_key2);
         }
