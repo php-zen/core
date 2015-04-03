@@ -71,7 +71,7 @@ abstract class Component
         if (2 & $i_mode) {
             $s_xetter = 'set' . $property;
 
-            return $this->s_xetter($value);
+            return $this->$s_xetter($value);
         }
         if (1 & $i_mode) {
             return $this->zenSet($property, $value);
