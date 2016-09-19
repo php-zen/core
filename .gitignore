@@ -2,6 +2,7 @@
 
 !.gitignore
 !composer.json
+!phpunit.xml
 
 !lib/
 !share/
