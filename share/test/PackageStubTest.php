@@ -90,8 +90,8 @@ class PackageStubTest extends PHPUnit_Framework_TestCase
             ->with($this->equalTo($s_class))
             ->willReturn(true);
         $this->assertEquals(0, self::$counter);
-        $o_unit = Unit::bind($this->stub);
-        $o_unit->loadClass($s_class);
+        $o_unit = Unit::bind($this->stub, true);
+        $o_unit->loadClass('\\'.$s_class);
         $this->assertEquals(1, self::$counter);
     }
 
@@ -99,7 +99,7 @@ class PackageStubTest extends PHPUnit_Framework_TestCase
     {
         $s_class = 'Foo\\Random'.time();
         $this->assertEquals(0, self::$counter);
-        $o_unit = Unit::bind($this->stub);
+        $o_unit = Unit::bind($this->stub, true);
         $o_unit->loadClass($s_class);
         $this->assertEquals(0, self::$counter);
     }
@@ -111,7 +111,7 @@ class PackageStubTest extends PHPUnit_Framework_TestCase
             ->method('loadClass')
             ->willReturn(true);
         $this->assertEquals(0, self::$counter);
-        $o_unit = Unit::bind($this->stub);
+        $o_unit = Unit::bind($this->stub, true);
         $o_unit->loadClass($s_class);
         $this->assertEquals(0, self::$counter);
     }
@@ -123,7 +123,7 @@ class PackageStubTest extends PHPUnit_Framework_TestCase
             ->method('loadClass')
             ->willReturn(true);
         $this->assertEquals(0, self::$counter);
-        $o_unit = Unit::bind($this->stub);
+        $o_unit = Unit::bind($this->stub, true);
         $o_unit->loadClass($s_class);
         $this->assertEquals(2, self::$counter);
     }
@@ -137,7 +137,7 @@ class PackageStubTest extends PHPUnit_Framework_TestCase
             ->withConsecutive($this->equalTo($s_class1), $this->equalTo($s_class2))
             ->willReturn(true);
         $this->assertEquals(0, self::$counter);
-        $o_unit = Unit::bind($this->stub);
+        $o_unit = Unit::bind($this->stub, true);
         $o_unit->loadClass($s_class1);
         $o_unit->loadClass($s_class2);
         $this->assertEquals(2, self::$counter);
