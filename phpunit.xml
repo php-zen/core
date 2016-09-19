@@ -1,4 +1,7 @@
 <phpunit>
   <testsuites>
+    <testsuite name="AutoLoad">
+      <file>share/test/PackageStubTest.php</file>
+    </testsuite>
   </testsuites>
 </phpunit>
