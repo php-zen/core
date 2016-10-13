@@ -35,111 +35,97 @@ class PackageStubTest extends PHPUnit_Framework_TestCase
     {
         self::$counter = 0;
         $this->vfs = vfs\vfsStream::setup('PackageStubTest', 0755, array(
-                'foo' => array(
+                'empty' => array(
+                    'lib' => array(),
+                ),
+                'one' => array(
                     'lib' => array(
                         'stub.php' => '<?php ZenTest\Core\PackageStubTest::record(1);',
                     ),
                 ),
-                'empty' => array(
-                    'lib' => array(),
-                ),
-                'bar' => array(
+                'more' => array(
                     'lib' => array(),
                     'lib64' => array(
                         'stub.php' => '<?php ZenTest\Core\PackageStubTest::record(2);',
                     ),
-                    'more' => array(
+                    'extra' => array(
                         'stub.php' => '<?php ZenTest\Core\PackageStubTest::record(4);',
                     ),
                 ),
             )
         );
         $this->stub = $this->createMock('Composer\Autoload\ClassLoader');
+    }
+
+    public function testAllStubsRunOnBinding()
+    {
         $this->stub->expects($this->once())
             ->method('getPrefixesPsr4')
             ->willReturn(array(
-                    'Foo\\' => array(
-                        $this->vfs->url().'/foo/lib',
-                    ),
-                    'Empty\\' => array(
-                        $this->vfs->url().'/empty/lib',
-                    ),
-                    'Bar\\' => array(
-                        $this->vfs->url().'/bar/lib',
-                        $this->vfs->url().'/bar/lib64',
-                        $this->vfs->url().'/bar/more',
+                    'Foo\\Bar\\' => array(
+                        $this->vfs->url().'/one/lib',
                     ),
                 )
             );
-    }
-
-    public function testBindReplaceComposerLoader()
-    {
-        $this->stub->expects($this->once())
-            ->method('unregister');
-        $i_count = count(spl_autoload_functions());
-        $o_unit = Unit::bind($this->stub);
-        $this->assertEquals(1 + $i_count, count(spl_autoload_functions()));
-    }
-
-    public function testStubAutoRun()
-    {
-        $s_class = 'Foo\\Random'.time();
-        $this->stub->expects($this->once())
-            ->method('loadClass')
-            ->with($this->equalTo($s_class))
-            ->willReturn(true);
-        $this->assertEquals(0, self::$counter);
-        $o_unit = Unit::bind($this->stub, true);
-        $o_unit->loadClass('\\'.$s_class);
+        Unit::bind($this->stub, true);
         $this->assertEquals(1, self::$counter);
     }
 
-    public function testStubSkipOnNonexistantClass()
+    public function testFirstStubWorkInEachPackage()
     {
-        $s_class = 'Foo\\Random'.time();
-        $this->assertEquals(0, self::$counter);
-        $o_unit = Unit::bind($this->stub, true);
-        $o_unit->loadClass($s_class);
-        $this->assertEquals(0, self::$counter);
-    }
-
-    public function testSlienceWhileNoStub()
-    {
-        $s_class = 'Empty\\Random'.time();
         $this->stub->expects($this->once())
-            ->method('loadClass')
-            ->willReturn(true);
-        $this->assertEquals(0, self::$counter);
-        $o_unit = Unit::bind($this->stub, true);
-        $o_unit->loadClass($s_class);
-        $this->assertEquals(0, self::$counter);
+            ->method('getPrefixesPsr4')
+            ->willReturn(array(
+                    'Foo\\Bar\\' => array(
+                        $this->vfs->url().'/more/extra',
+                        $this->vfs->url().'/one/lib',
+                    ),
+                )
+            );
+        Unit::bind($this->stub, true);
+        $this->assertEquals(4, self::$counter);
     }
 
-    public function testStubSeekFirstOverEachSourceFolder()
+    public function testEachStubRunOnlyOnce()
     {
-        $s_class = 'Bar\\Random'.time();
         $this->stub->expects($this->once())
-            ->method('loadClass')
-            ->willReturn(true);
-        $this->assertEquals(0, self::$counter);
-        $o_unit = Unit::bind($this->stub, true);
-        $o_unit->loadClass($s_class);
-        $this->assertEquals(2, self::$counter);
+            ->method('getPrefixesPsr4')
+            ->willReturn(array(
+                    'Foo\\Bar\\' => array(
+                        $this->vfs->url().'/more/extra',
+                    ),
+                    'Foo\\Blah\\' => array(
+                        $this->vfs->url().'/more/extra',
+                    ),
+                )
+            );
+        Unit::bind($this->stub, true);
+        $this->assertEquals(4, self::$counter);
     }
 
-    public function testStubRunOnce()
+    public function testStubIsOptional()
     {
-        $s_class1 = 'Bar\\Random1'.time();
-        $s_class2 = 'Bar\\Random2'.time();
-        $this->stub->expects($this->exactly(2))
-            ->method('loadClass')
-            ->withConsecutive($this->equalTo($s_class1), $this->equalTo($s_class2))
-            ->willReturn(true);
+        $this->stub->expects($this->once())
+            ->method('getPrefixesPsr4')
+            ->willReturn(array(
+                    'Foo\\Bar\\' => array(
+                        $this->vfs->url().'/empty/lib',
+                    ),
+                )
+            );
+        Unit::bind($this->stub, true);
         $this->assertEquals(0, self::$counter);
-        $o_unit = Unit::bind($this->stub, true);
-        $o_unit->loadClass($s_class1);
-        $o_unit->loadClass($s_class2);
-        $this->assertEquals(2, self::$counter);
+    }
+
+    /**
+     * @expectedException Zen\Core\ExStubAlreadyDone
+     */
+    public function testStubSingleton()
+    {
+        $this->stub->expects($this->once())
+            ->method('getPrefixesPsr4')
+            ->willReturn(array());
+        Unit::bind($this->stub);
+        Unit::bind($this->stub);
     }
 }

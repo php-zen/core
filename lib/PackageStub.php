@@ -17,25 +17,25 @@ namespace Zen\Core;
 class PackageStub extends Component
 {
     /**
-     * Composer 类加载器实例。
+     * 是否已执行。
      *
-     * @var \Composer\Autoload\ClassLoader
+     * @var bool
      */
-    protected $loader;
+    protected static $done = false;
 
     /**
-     * 来自于 Composer 的 PS4 包信息。
+     * 实际执行的包引导程序列表。
      *
-     * @var string[][][]
+     * @var string[]
      */
-    protected $packages;
+    protected $stubs;
 
     /**
-     * 包引导程序调用状态。
+     * 包引导程序执行时间列表。
      *
-     * @var bool[]
+     * @var float[]
      */
-    protected $stubbed;
+    protected $profiler;
 
     /**
      * 构造函数。
@@ -44,51 +44,52 @@ class PackageStub extends Component
      */
     protected function __construct($loader)
     {
-        $this->loader = $loader;
-        $this->packages = array();
+        $this->stubs = array();
         $a_packages = $loader->getPrefixesPsr4();
-        krsort($a_packages);
+        ksort($a_packages);
         foreach ($a_packages as $s_namespace => $a_dirs) {
-            $s_key = $s_namespace[0];
-            if (!isset($this->packages[$s_key])) {
-                $this->packages[$s_key] = array();
+            if (isset($this->stubs[$s_namespace])) {
+                continue;
             }
-            $this->packages[$s_key][$s_namespace] = $a_dirs;
+            $a_result = $this->seek($a_dirs);
+            if ($a_result) {
+                $this->stubs[$s_namespace] = $a_result[0];
+                $this->profiler[$s_namespace] = $a_result[1];
+            }
         }
-        $this->stubbed = array();
     }
 
     /**
-     * 加载指定类。
+     * 检索第一个引导程序并执行。
      *
-     * @param string $class
+     * @param string[] $dirs
      *
-     * @return null|bool
+     * @return [string, float]|false
      */
-    public function loadClass($class)
+    protected function seek($dirs)
     {
-        if ('\\' == $class[0]) {
-            $class = substr($class, 1);
-        }
-        if (!$this->loader->loadClass($class)) {
-            return;
-        }
-        foreach ($this->packages[$class[0]] as $s_namespace => $a_dirs) {
-            if (0 !== strpos($class, $s_namespace)) {
-                continue;
-            }
-            if (isset($this->stubbed[$s_namespace])) {
-                return true;
-            }
-            foreach ($a_dirs as $p_dir) {
-                $p_stub = $p_dir.'/stub.php';
-                if (is_file($p_stub)) {
-                    $this->stubbed[$s_namespace] = true;
-                    include $p_stub;
+        $f_ts = microtime(true);
+        foreach ($dirs as $p_dir) {
+            $p_stub = $p_dir.'/stub.php';
+            if (is_file($p_stub) && is_readable($p_stub)) {
+                $this->exec($p_stub);
 
-                    return true;
-                }
+                return array($p_stub, microtime(true) - $f_ts);
             }
+        }
+
+        return false;
+    }
+
+    /**
+     * 执行引导程序。
+     *
+     * @param string $stub
+     */
+    protected function exec($stub)
+    {
+        if (!in_array($stub, $this->stubs)) {
+            require $stub;
         }
     }
 
@@ -96,18 +97,19 @@ class PackageStub extends Component
      * 绑定 Composer 类加载器实例。
      *
      * @param \Composer\Autoload\ClassLoader $loader
-     * @param bool                           $dryRun 此参数仅用于单元测试！
+     * @param bool                           $test   Optional.
      *
      * @return self
      */
-    public static function bind($loader, $dryRun = false)
+    public static function bind($loader, $test = false)
     {
-        $loader->unregister();
-        $o_self = new static($loader);
-        if (!$dryRun) {
-            spl_autoload_register(array($o_self, 'loadClass'), true, true);
+        if (!$test) {
+            if (self::$done) {
+                throw new ExStubAlreadyDone();
+            }
+            self::$done = true;
         }
 
-        return $o_self;
+        return new static($loader);
     }
 }
