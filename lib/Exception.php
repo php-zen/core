@@ -3,7 +3,7 @@
  * 定义框架内派生异常的基础抽象。
  *
  * @author    Snakevil Zen <zsnakevil@gmail.com>
- * @copyright © 2014 SZen.in
+ * @copyright © 2016 SZen.in
  * @license   LGPL-3.0+
  */
 
@@ -14,8 +14,8 @@ use Exception as PHPException;
 /**
  * 框架内派生异常的基础抽象。
  *
- * @package Zen\Core
  * @version 0.1.0
+ *
  * @since   0.1.0
  *
  * @method void __construct(mixed $..., \Exception $prev = null) 构造函数
@@ -53,7 +53,7 @@ abstract class Exception extends PHPException
     protected $context;
 
     /**
-     * 构造函数
+     * 构造函数.
      *
      * @internal
      */
@@ -70,7 +70,7 @@ abstract class Exception extends PHPException
             }
             if ($a_args[$i_args - 1] instanceof PHPException) {
                 $e_prev = array_pop($a_args);
-                $i_args--;
+                --$i_args;
             }
         }
         $a_keys = static::$contextSequence;
@@ -80,7 +80,7 @@ abstract class Exception extends PHPException
             array_splice($a_args, $i_keys);
         }
         $this->context = array_combine($a_keys, $a_args);
-        parent::__construct($this->semanticize(), 1, $e_prev);
+        parent::__construct($this->semanticize(), static::CODE, $e_prev);
     }
 
     /**
@@ -103,7 +103,7 @@ abstract class Exception extends PHPException
                 continue;
             }
             $a_src[$ii[0]] = 1;
-            $a_dst[] = '%' . (++$i_counter) . '$';
+            $a_dst[] = '%'.(++$i_counter).'$';
             $a_val[] = isset($a_context[$ii[1]]) ? $a_context[$ii[1]] : '';
         }
         $a_src = array_keys($a_src);
